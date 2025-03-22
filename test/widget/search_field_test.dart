@@ -56,4 +56,76 @@ void main() async {
     final decoration = inputDecorator.decoration;
     expect(decoration.helperText, testHelperText);
   });
+testWidgets('should trigger onSearch when Enter key is pressed', (WidgetTester tester) async {
+  String? searchText;
+
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: SearchField(
+          onSearch: (text) => searchText = text,
+        ),
+      ),
+    ),
+  );
+
+  await tester.enterText(find.byType(TextFormField), 'Testing submission');
+  await tester.testTextInput.receiveAction(TextInputAction.done);
+  await tester.pump();
+
+  expect(searchText, 'Testing submission');
+});
+
+testWidgets('should set initial text correctly', (WidgetTester tester) async {
+  const initialText = 'Initial Value';
+
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: SearchField
+        (
+          initialText: initialText,
+          onSearch: (_) {},
+        ),
+      ),
+    ),
+  );
+
+  final textField = find.byType(TextFormField);
+  final textFieldWidget = tester.widget<TextFormField>(textField);
+  expect(textFieldWidget.controller?.text, initialText);
+});
+
+testWidgets('should show validation error when input is invalid', (WidgetTester tester) async {
+  String? errorMessage;
+
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: Form(
+          child: SearchField(
+            onSearch: (_) {},
+            validator: (text) {
+              if (text == null || text.isEmpty) {
+                errorMessage = 'Campo obrigatório';
+                return errorMessage;
+              }
+              return null;
+            },
+          ),
+        ),
+      ),
+    ),
+  );
+
+  await tester.tap(find.byIcon(Icons.search));
+  await tester.pump();
+
+  expect(find.text('Campo obrigatório'), findsOneWidget);
+});
+
+  
+}
+
+  
 }
