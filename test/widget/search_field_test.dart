@@ -56,4 +56,41 @@ void main() async {
     final decoration = inputDecorator.decoration;
     expect(decoration.helperText, testHelperText);
   });
+
+class MockOnSearch {
+  String? lastQuery;
+
+  void call(String query) {
+    lastQuery = query; 
+  }
+}
+ {
+  testWidgets((WidgetTester tester) async {
+    final mockOnSearch = MockOnSearch();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SearchField(hintText: testHintText, onSearch: mockOnSearch),
+        ),
+      ),
+    );
+    expect(find.text(testHintText), findsOneWidget);
+  });
+
+  testWidgets('Teste de onSearch', (WidgetTester tester) async {
+    final mockOnSearch = MockOnSearch();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SearchField(hintText: 'Busca', onSearch: mockOnSearch),
+        ),
+      ),
+    );
+    await tester.enterText(find.byType(TextField), 'Flutter');
+    await tester.pump();
+    expect(mockOnSearch.lastQuery, equals('Flutter'));
+  });
+}
 }
